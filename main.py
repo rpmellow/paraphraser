@@ -1,11 +1,21 @@
+import os
+# Set Huggingface & Torch cache dirs BEFORE importing transformers or nltk
+os.environ["HF_HOME"] = "/tmp/huggingface_cache"
+os.environ["TORCH_HOME"] = "/tmp/torch_cache"
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import nltk
-import os
 
-# Add path where punkt will be located (downloaded at build time)
+# Add paths where punkt will be located (downloaded at build time or fallback)
 nltk.data.path.append("/root/nltk_data")  # Leapcell build step location
 nltk.data.path.append(os.path.join(os.getcwd(), "nltk_data"))  # local folder if needed
+nltk.data.path.append("/tmp/nltk_data")  # fallback location
+
+import pathlib
+# Download punkt if missing
+if not pathlib.Path("/root/nltk_data/tokenizers/punkt").exists():
+    nltk.download("punkt", download_dir="/tmp/nltk_data")
 
 app = FastAPI()
 
