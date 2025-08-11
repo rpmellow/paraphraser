@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import nltk
+import os
 
 # Add path where punkt will be at runtime
 nltk.data.path.append("/root/nltk_data")
