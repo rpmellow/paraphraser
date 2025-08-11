@@ -8,7 +8,7 @@ nltk.download('punkt')
 
 # Load model and tokenizer at startup
 model_name = "Vamsi/T5_Paraphrase_Paws"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
 # FastAPI app
