@@ -66,7 +66,16 @@ def paraphrase_paragraph(paragraph: str) -> str:
 
 @app.post("/paraphrase")
 def paraphrase_api(request: ParagraphRequest):
-    result = paraphrase_paragraph(request.text)
+    if not request.text.strip():
+        raise HTTPException(status_code=400, detail="Text cannot be empty.")
+
+    try:
+        result = paraphrase_paragraph(request.text)
+    except LookupError as e:
+        raise HTTPException(status_code=500, detail=f"NLTK resource missing: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
     return {
         "original": request.text,
         "paraphrased": result
