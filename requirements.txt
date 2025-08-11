@@ -5,3 +5,4 @@ torch
 nltk
 tiktoken
 protobuf
+sentencepiece
