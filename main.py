@@ -2,8 +2,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import nltk
 
-nltk.download("punkt")
-
 app = FastAPI()
 
 tokenizer = None
@@ -15,6 +13,8 @@ class ParagraphRequest(BaseModel):
 @app.get("/")
 def root():
     return {"message": "Welcome to the Paraphrasing API! Use POST /paraphrase to paraphrase your text."}
+
+nltk.download("punkt")
 
 def load_model():
     global tokenizer, model
