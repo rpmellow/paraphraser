@@ -1,26 +1,33 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import nltk
 
-# Download punkt tokenizer for sentence splitting
-nltk.download('punkt')
+nltk.download("punkt")
 
-# Load model and tokenizer
-model_name = "Vamsi/T5_Paraphrase_Paws"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-
-# FastAPI app
 app = FastAPI()
 
-# Request body schema
+tokenizer = None
+model = None
+
 class ParagraphRequest(BaseModel):
     text: str
 
-# Paraphrase function
+@app.get("/")
+def root():
+    return {"message": "Welcome to the Paraphrasing API! Use POST /paraphrase to paraphrase your text."}
+
+def load_model():
+    global tokenizer, model
+    if tokenizer is None or model is None:
+        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+        model_name = "Vamsi/T5_Paraphrase_Paws"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
 def paraphrase_paragraph(paragraph: str) -> str:
-    sentences = nltk.sent_tokenize(paragraph)
+    load_model()
+    from nltk import sent_tokenize
+    sentences = sent_tokenize(paragraph)
     paraphrased_sentences = []
 
     for sent in sentences:
@@ -35,9 +42,9 @@ def paraphrase_paragraph(paragraph: str) -> str:
             max_length=256,
             num_beams=5,
             num_return_sequences=1,
-            do_sample=True,      
-            top_k=50,               
-            temperature=2.0, 
+            do_sample=True,
+            top_k=50,
+            temperature=2.0,
         )
 
         paraphrased = tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -45,7 +52,6 @@ def paraphrase_paragraph(paragraph: str) -> str:
 
     return " ".join(paraphrased_sentences)
 
-# API endpoint
 @app.post("/paraphrase")
 def paraphrase_api(request: ParagraphRequest):
     result = paraphrase_paragraph(request.text)
@@ -54,9 +60,4 @@ def paraphrase_api(request: ParagraphRequest):
         "paraphrased": result
     }
 
-@app.get("/")
-def root():
-    return {"message": "Welcome to the Paraphrasing API! Use POST /paraphrase to paraphrase your text."}
-
-
-# To run: uvicorn filename:app --reload
+# Run with: uvicorn main:app --host 0.0.0.0 --port 8080
