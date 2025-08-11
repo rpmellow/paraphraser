@@ -5,7 +5,7 @@ import os
 
 # Add path where punkt will be located (downloaded at build time)
 nltk.data.path.append("/root/nltk_data")  # Leapcell build step location
-nltk.data.path.append(os.path.join(os.path.dirname(__file__), "nltk_data"))  # local folder if needed
+nltk.data.path.append(os.path.join(os.getcwd(), "nltk_data"))  # local folder if needed
 
 app = FastAPI()
 
